@@ -81,23 +81,8 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
     
     // 检查LLM API配置
     useEffect(() => {
-        const checkAPIAvailability = () => {
-            // 实际应用中应该通过检查localStorage或用户设置来判断
-            const gemini = localStorage.getItem('gemini_api_key') ? true : false;
-            const deepseek = localStorage.getItem('deepseek_api_key') ? true : false;
-            const openai = localStorage.getItem('openai_api_key') ? true : false;
-            const anthropic = localStorage.getItem('anthropic_api_key') ? true : false;
-            
-            setLlmAPIAvailability({
-                gemini,
-                deepseek,
-                openai,
-                anthropic,
-                anyAvailable: gemini || deepseek || openai || anthropic
-            });
-        };
-        
-        checkAPIAvailability();
+        const availability = checkLLMAPIAvailability();
+        setLlmAPIAvailability(availability);
     }, []);
     
     // 监听LLM角色变化
@@ -115,21 +100,23 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
     }, [roomRequestID]);
     
     // 设置心跳检查
+    const heartbeatSetupRef = useRef(false);
+
     useEffect(() => {
-        if (!userDB || !roomRequestID) return;
+        if (!userDB?.uid || !roomRequestID) return;
+        if (heartbeatSetupRef.current) return; // 如果已经设置了心跳，则不再重复设置
         
-        const setupHeartbeat = () => {
-            // 模拟心跳检查，实际应用中应该实现相应逻辑
-            console.log(`Setting up heartbeat for user ${userDB.uid} in room ${roomRequestID}`);
-            return () => console.log(`Cleaning up heartbeat`);
-        };
+        console.log("Setting up heartbeat effect with:", userDB.uid, roomRequestID);
+        heartbeatSetupRef.current = true;
         
-        const cleanupHeartbeat = setupHeartbeat();
+        const cleanup = setupHeartbeatInterval(userDB.uid, roomRequestID);
         
         return () => {
-            cleanupHeartbeat();
+            console.log("Cleaning up heartbeat effect for:", userDB.uid, roomRequestID);
+            heartbeatSetupRef.current = false;
+            cleanup();
         };
-    }, [userDB, roomRequestID]);
+    }, [userDB?.uid, roomRequestID]);
 
     function showEmojiPicker(){set_emojipickerchngr(!emojipickerchngr);}
 
@@ -174,7 +161,7 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
         
         // 检查是否需要处理LLM响应
         const hasLLMsToProcess = checkForLLMsToProcess();
-        if (!hasLLMsToProcess) return;
+        if (!hasLLMsToProcess || !llmAPIAvailability.anyAvailable) return;
         
         // 获取需要处理的LLM角色
         const myLLMRoles = llmRoles.filter(role => 
@@ -185,12 +172,19 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
         setProcessingLLM(true);
         for (const role of myLLMRoles) {
             try {
+                console.log(`Processing LLM role: ${role.name} with model: ${role.model}`); 
                 // 增加一点延迟，避免消息发送太快
                 await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
                 
-                // 模拟LLM响应，实际应用中应该调用API
-                const response = `This is a simulated response from ${role.name} using the ${role.model} model.`;
-                
+                // 调用LLM服务获取响应
+                const response = await processLLMRequest(
+                    roomdetails.id,
+                    role,
+                    message,
+                    userDB.username,
+                    roomdetails.roomName
+                ); 
+
                 // 作为LLM角色发送消息
                 await handleSendingRoomMessage({
                     user: {
@@ -269,34 +263,73 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
     const handleEditRole = async (roleId: string, updatedData: {name: string, prompt: string, model: string, avatar: string | null}) => {
         if (!userDB || !roomRequestID) return;
         
+        // 验证提示不包含未编辑的占位符
+        if (updatedData.prompt.includes("[EDIT THIS]")) {
+          alert("Please edit all template placeholders in the prompt.");
+          return;
+        }
+        
         const updatedRoles = llmRoles.map(role => 
-            role.id === roleId 
-                ? { ...role, ...updatedData } 
-                : role
+          role.id === roleId 
+            ? { ...role, ...updatedData } 
+            : role
         );
         
         const roomRef = doc(db, "rooms", roomRequestID);
         await updateDoc(roomRef, { llmRoles: updatedRoles });
     };
 
+    // 修改 getAllRoomMembers 函数
     const getAllRoomMembers = async(roomRef: DocumentReference<DocumentData>): Promise<() => void> => {
+        // 重置成员列表
         setRoomMembers([]);
-        const unsub: Unsubscribe = onSnapshot(collection(roomRef, "members"), (memberquery) => {
+        
+        // 使用一个 Map 来跟踪已添加的成员
+        const membersMap = new Map();
+        
+        const unsub: Unsubscribe = onSnapshot(collection(roomRef, "members"), async (memberquery) => {
             membersArrSize.current = memberquery.size;
-            memberquery.forEach(async(docdata) => {
-                const memberRef: DocumentReference<DocumentData> = doc(db, "users", docdata.id);
-                const memberdocSnap: DocumentSnapshot<DocumentData> = await getDoc(memberRef);
-                setRoomMembers(oldMembersarr => [...oldMembersarr, {
-                    id: memberdocSnap.data()?.uid,
-                    username: memberdocSnap.data()?.username,
-                    profile: memberdocSnap.data()?.displayPhoto,
-                    inRoom: docdata.data()?.inRoom
-                }]);
-            })
+            
+            // 创建一个临时数组来收集所有成员
+            const tempMembers: {
+                id: string,
+                username: string,
+                profile: string,
+                inRoom: boolean
+            }[] = [];
+            
+            // 构建一个 Promise 数组以并行处理所有成员查询
+            const memberPromises = memberquery.docs.map(async (docdata) => {
+                const memberId = docdata.id;
+                
+                if (!membersMap.has(memberId)) {
+                    membersMap.set(memberId, true);
+                    
+                    const memberRef: DocumentReference<DocumentData> = doc(db, "users", memberId);
+                    const memberdocSnap: DocumentSnapshot<DocumentData> = await getDoc(memberRef);
+                    
+                    if (memberdocSnap.exists()) {
+                        return {
+                            id: memberdocSnap.data()?.uid,
+                            username: memberdocSnap.data()?.username,
+                            profile: memberdocSnap.data()?.displayPhoto,
+                            inRoom: docdata.data()?.inRoom
+                        };
+                    }
+                }
+                return null;
+            });
+            
+            // 等待所有 Promise 完成
+            const results = await Promise.all(memberPromises);
+            
+            // 过滤掉 null 值并更新状态
+            setRoomMembers(results.filter(member => member !== null) as any);
         });
 
-        return () =>{unsub();}
+        return () => {unsub();};
     }
+
 
     useEffect(() => {ref.current?.scrollIntoView({ behavior: "smooth"});}, [RoommessagesList])
 
@@ -460,6 +493,12 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
                                 onSave={handleAddLLMRole}
                                 onCancel={() => setShowLLMCreator(false)}
                                 darklight={darklight}
+                                availableModels={{
+                                    gemini: llmAPIAvailability.gemini,
+                                    deepseek: llmAPIAvailability.deepseek,
+                                    openai: llmAPIAvailability.openai,
+                                    anthropic: llmAPIAvailability.anthropic
+                                }} 
                             />
                         )}
                         
@@ -473,7 +512,9 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
                                         role={role}
                                         isProcessor={userDB?.uid === role.processorId}
                                         onTakeProcessor={() => handleTakeProcessor(role.id)}
-                                        onEditRole={() => {/* 实现编辑功能 */}}
+                                        onEditRole={(updatedData: {name: string, prompt: string, model: string, avatar: string | null}) => 
+                                            handleEditRole(role.id, updatedData)
+                                        }
                                         onToggleActive={() => handleToggleActive(role.id)}
                                         darklight={darklight}
                                     />
@@ -483,20 +524,20 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
                     </div>
                     
                     {/* 成员列表部分 */}
-                    <div className="settings-section members-section">
-                        <h3>Members</h3>
-                        <div className="members-list">
-                            {RoomMembers.map((obj) =>
-                                <RoomMember 
-                                    key={"roomMember" + obj.id} 
-                                    id={obj.id} 
-                                    profile={obj.profile} 
-                                    username={obj.username} 
-                                    inroom={obj.inRoom}
-                                    darklight={darklight}
-                                />
-                            )}
-                        </div>
+                    <div className="members-list">
+                        {RoomMembers.filter((member, index, self) => 
+                            // 过滤掉重复的成员
+                            index === self.findIndex(m => m.id === member.id)
+                        ).map((obj, index) =>
+                            <RoomMember 
+                                key={`roomMember_${obj.id}_${index}`} 
+                                id={obj.id} 
+                                profile={obj.profile} 
+                                username={obj.username} 
+                                inroom={obj.inRoom}
+                                darklight={darklight}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

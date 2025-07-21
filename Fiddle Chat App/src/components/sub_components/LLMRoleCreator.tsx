@@ -14,6 +14,12 @@ type LLMRoleCreatorProps = {
   }) => void;
   onCancel: () => void;
   darklight: string;
+  availableModels: {
+    gemini: boolean;
+    deepseek: boolean;
+    openai: boolean;
+    anthropic: boolean;
+  };
 }
 
 const LLMRoleCreator: FunctionComponent<LLMRoleCreatorProps> = ({ onSave, onCancel, darklight }) => {
