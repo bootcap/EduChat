@@ -71,6 +71,9 @@ import openRoomArrow_LM from "./openRoomArrow-LM.svg";
 import emoji_DM from "./emoji-DM.svg";
 import emoji_LM from "./emoji-LM.svg";
 
+import close_LM from './close_LM.svg';
+import close_DM from './close_DM.svg';
+
 import cross_LM from "./Cross-LM.svg";
 import cross_DM from "./Cross-DM.svg";
 
@@ -84,5 +87,5 @@ export { facebooksvg, app_banner_small, app_banner_small_LM, app_logo_small,
     logout, deleteprofile, google_small, twitter_small, facebook_small, github_small,
     eyeclosed_DM, eyeopened_DM, eyeclosed_LM, eyeopened_LM, addfriend_green,
     join_room, create_room, leave_room, openRoomArrow_LM, openRoomArrow_DM, emoji_DM, 
-    emoji_LM, cross_LM, cross_DM
+    emoji_LM, cross_LM, cross_DM, close_LM, close_DM
 }

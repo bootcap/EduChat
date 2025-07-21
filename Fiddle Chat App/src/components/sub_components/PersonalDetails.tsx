@@ -2,7 +2,7 @@ import "../../styles/Settings.scss";
 import { save, logout, deleteprofile, google_small, twitter_small, facebook_small, github_small,
   eyeclosed_DM, eyeopened_DM, eyeclosed_LM, eyeopened_LM, user_LM, user_DM} from "../../projectAssets";
 import { motion } from "framer-motion";
-import { useState, FunctionComponent } from 'react';
+import { useState, useEffect, FunctionComponent } from 'react';
 import { useAuth } from '../../contexts/Authcontext';
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
@@ -30,11 +30,35 @@ const PersonalDetails : FunctionComponent<PersonalDetailsProps> = ({darklight}) 
   });
 
   const [showpassword, set_showpassword] = useState<boolean>(false);
-
   const [confirmDelete, set_ConfirmDelete] = useState<boolean>(false);
-
   const [err, setErr] = useState<boolean>(false);
   const [error_msg, setError_msg] = useState<string>("");
+  
+  // API密钥相关状态
+  const [geminiApiKey, setGeminiApiKey] = useState<string>('');
+  const [deepseekApiKey, setDeepseekApiKey] = useState<string>('');
+  const [openaiApiKey, setOpenaiApiKey] = useState<string>('');
+  const [anthropicApiKey, setAnthropicApiKey] = useState<string>('');
+  
+  const [showApiKeys, setShowApiKeys] = useState<boolean>(false);
+  const [showOtherKeys, setShowOtherKeys] = useState<boolean>(false);
+  const [showGeminiKey, setShowGeminiKey] = useState<boolean>(false);
+  const [showDeepseekKey, setShowDeepseekKey] = useState<boolean>(false);
+  const [showOpenaiKey, setShowOpenaiKey] = useState<boolean>(false);
+  const [showAnthropicKey, setShowAnthropicKey] = useState<boolean>(false);
+
+  // 加载保存的API密钥
+  useEffect(() => {
+    const savedGeminiKey = localStorage.getItem('gemini_api_key') || '';
+    const savedDeepseekKey = localStorage.getItem('deepseek_api_key') || '';
+    const savedOpenaiKey = localStorage.getItem('openai_api_key') || '';
+    const savedAnthropicKey = localStorage.getItem('anthropic_api_key') || '';
+    
+    setGeminiApiKey(savedGeminiKey);
+    setDeepseekApiKey(savedDeepseekKey);
+    setOpenaiApiKey(savedOpenaiKey);
+    setAnthropicApiKey(savedAnthropicKey);
+  }, []);
 
   function handleChange(e: any){setform({ ... form, [e.target.name] : e.target.value});}
 
@@ -60,6 +84,40 @@ const PersonalDetails : FunctionComponent<PersonalDetailsProps> = ({darklight}) 
       console.log(error);
     });
   }
+  
+  // 保存API密钥到localStorage
+  const saveApiKeys = () => {
+    // 保存Gemini API密钥
+    if (geminiApiKey) {
+      localStorage.setItem('gemini_api_key', geminiApiKey);
+    } else {
+      localStorage.removeItem('gemini_api_key');
+    }
+    
+    // 保存DeepSeek API密钥
+    if (deepseekApiKey) {
+      localStorage.setItem('deepseek_api_key', deepseekApiKey);
+    } else {
+      localStorage.removeItem('deepseek_api_key');
+    }
+    
+    // 保存OpenAI API密钥
+    if (openaiApiKey) {
+      localStorage.setItem('openai_api_key', openaiApiKey);
+    } else {
+      localStorage.removeItem('openai_api_key');
+    }
+    
+    // 保存Anthropic API密钥
+    if (anthropicApiKey) {
+      localStorage.setItem('anthropic_api_key', anthropicApiKey);
+    } else {
+      localStorage.removeItem('anthropic_api_key');
+    }
+    
+    setError_msg('API keys saved successfully');
+    setErr(true);
+  };
 
   function signOutOfApp(){
     setLoadingTrue();
@@ -180,6 +238,135 @@ const PersonalDetails : FunctionComponent<PersonalDetailsProps> = ({darklight}) 
             <h3>Position</h3>
             <input name="position" type="text" onChange={handleChange} value={form.position}/>
         </div>
+        
+        {/* API密钥部分 */}
+        <motion.div 
+          className="api-keys-section" 
+          onClick={() => setShowApiKeys(!showApiKeys)}
+          whileHover={{ opacity: 0.9 }}
+        >
+          <h3 className="api-keys-header">
+            AI API Keys {showApiKeys ? '▲' : '▼'}
+          </h3>
+        </motion.div>
+
+        {showApiKeys && (
+          <div className="api-keys-container">
+            <p>These keys are stored locally and used for AI character responses in chat rooms.</p>
+            
+            {/* Gemini API Key */}
+            <div className="pd-form-object">
+              <h3>Google Gemini API Key <span className="recommended-badge">Recommended</span></h3>
+              <input
+                name="geminiApiKey"
+                type={showGeminiKey ? "text" : "password"}
+                value={geminiApiKey}
+                onChange={(e) => setGeminiApiKey(e.target.value)}
+                placeholder="Enter your Gemini API key"
+              />
+              <motion.div 
+                whileHover={{ opacity: 0.8 }} 
+                whileTap={{scale: 0.97}}
+                onClick={() => setShowGeminiKey(!showGeminiKey)} 
+                className="password-control"
+              >
+                { darklight === 'light'
+                  ? <img src={showGeminiKey ? eyeopened_LM : eyeclosed_LM} alt={showGeminiKey ? "hide-key" : "show-key"}/>
+                  : <img src={showGeminiKey ? eyeopened_DM : eyeclosed_DM} alt={showGeminiKey ? "hide-key" : "show-key"}/>
+                }
+              </motion.div>
+            </div>
+            
+            {/* DeepSeek API Key */}
+            <div className="pd-form-object">
+              <h3>DeepSeek API Key <span className="recommended-badge">Recommended</span></h3>
+              <input
+                name="deepseekApiKey"
+                type={showDeepseekKey ? "text" : "password"}
+                value={deepseekApiKey}
+                onChange={(e) => setDeepseekApiKey(e.target.value)}
+                placeholder="Enter your DeepSeek API key"
+              />
+              <motion.div 
+                whileHover={{ opacity: 0.8 }} 
+                whileTap={{scale: 0.97}}
+                onClick={() => setShowDeepseekKey(!showDeepseekKey)} 
+                className="password-control"
+              >
+                { darklight === 'light'
+                  ? <img src={showDeepseekKey ? eyeopened_LM : eyeclosed_LM} alt={showDeepseekKey ? "hide-key" : "show-key"}/>
+                  : <img src={showDeepseekKey ? eyeopened_DM : eyeclosed_DM} alt={showDeepseekKey ? "hide-key" : "show-key"}/>
+                }
+              </motion.div>
+            </div>
+            
+            <div className="other-api-keys-section">
+              <h3 onClick={() => setShowOtherKeys(!showOtherKeys)} className="other-keys-header">
+                Other API Keys {showOtherKeys ? '▲' : '▼'}
+              </h3>
+              
+              {showOtherKeys && (
+                <>
+                  {/* OpenAI API Key */}
+                  <div className="pd-form-object">
+                    <h3>OpenAI API Key</h3>
+                    <input
+                      name="openaiApiKey"
+                      type={showOpenaiKey ? "text" : "password"}
+                      value={openaiApiKey}
+                      onChange={(e) => setOpenaiApiKey(e.target.value)}
+                      placeholder="Enter your OpenAI API key"
+                    />
+                    <motion.div 
+                      whileHover={{ opacity: 0.8 }} 
+                      whileTap={{scale: 0.97}}
+                      onClick={() => setShowOpenaiKey(!showOpenaiKey)} 
+                      className="password-control"
+                    >
+                      { darklight === 'light'
+                        ? <img src={showOpenaiKey ? eyeopened_LM : eyeclosed_LM} alt={showOpenaiKey ? "hide-key" : "show-key"}/>
+                        : <img src={showOpenaiKey ? eyeopened_DM : eyeclosed_DM} alt={showOpenaiKey ? "hide-key" : "show-key"}/>
+                      }
+                    </motion.div>
+                  </div>
+                  
+                  {/* Anthropic API Key */}
+                  <div className="pd-form-object">
+                    <h3>Anthropic API Key</h3>
+                    <input
+                      name="anthropicApiKey"
+                      type={showAnthropicKey ? "text" : "password"}
+                      value={anthropicApiKey}
+                      onChange={(e) => setAnthropicApiKey(e.target.value)}
+                      placeholder="Enter your Anthropic API key"
+                    />
+                    <motion.div 
+                      whileHover={{ opacity: 0.8 }} 
+                      whileTap={{scale: 0.97}}
+                      onClick={() => setShowAnthropicKey(!showAnthropicKey)} 
+                      className="password-control"
+                    >
+                      { darklight === 'light'
+                        ? <img src={showAnthropicKey ? eyeopened_LM : eyeclosed_LM} alt={showAnthropicKey ? "hide-key" : "show-key"}/>
+                        : <img src={showAnthropicKey ? eyeopened_DM : eyeclosed_DM} alt={showAnthropicKey ? "hide-key" : "show-key"}/>
+                      }
+                    </motion.div>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <motion.div 
+              className="save-api-keys" 
+              whileTap={{scale: 0.97}} 
+              whileHover={{opacity: 0.9}}
+              onClick={saveApiKeys}
+            >
+              <h2>Save API Keys</h2>
+            </motion.div>
+          </div>
+        )}
+        
         <div className="controls">
           <motion.div className="save-changes" whileTap={{scale: 0.97}} whileHover={{opacity: 0.9}}
           onClick={submitChanges}>

@@ -13,6 +13,9 @@ import RoomMember from "./RoomMember";
 import RequestComponent from "./RequestComponent";
 import FriendComponent from "./FriendComponent";
 
+import LLMRoleCreator from "./LLMRoleCreator";
+import LLMRoleComponent from "./LLMRoleComponent";
+
 export {Loginform, Signupform, Resetpswd, ContactCard, MessageBubblePriv, MessageBubbleRoom, 
 PersonalDetails, Themes, About, ContactCardRoom, ResetpswdConfirm, RoomMember, RequestComponent, 
-FriendComponent};
+FriendComponent, LLMRoleCreator, LLMRoleComponent};

@@ -1,4 +1,4 @@
-@import "constantMixins";
+@use "./constantMixins" as *;
 
 .messages-details-box{
     width: calc(100vw - 461px);

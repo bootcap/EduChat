@@ -1,4 +1,4 @@
-@import "constantMixins";
+@use "./constantMixins" as *;
 
 .settings-details-box{
     width: calc(100vw - 461px);

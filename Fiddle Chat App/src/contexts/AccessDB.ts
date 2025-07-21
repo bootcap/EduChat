@@ -297,14 +297,19 @@ export const handleJoinRoom = async(obj: any) => {
     else return "failed";
 }
 
+// 修改 contexts/AccessDB.ts 中的 handleCreateRoom 函数
 export const handleCreateRoom = async(obj: any) => {
     const roomName = obj.roomname;
     const user = obj.user;
+    const llmRoles = obj.llmRoles || []; // 添加默认值
 
     const roomRef = await addDoc(collection(db, "rooms"), {
         roomname: roomName,
         displayPhoto: null,
-        membersAmount: 1
+        membersAmount: 1,
+        llmRoles: llmRoles,
+        createdAt: Timestamp.now(),
+        createdBy: user.uid
     });
     const userRef = doc(db, "users", user.uid);
 

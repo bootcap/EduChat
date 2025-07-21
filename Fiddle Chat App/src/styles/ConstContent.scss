@@ -1,4 +1,4 @@
-@import "constantMixins";
+@use "./constantMixins" as *;
 
 .all-content{
     
