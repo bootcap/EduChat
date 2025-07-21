@@ -432,112 +432,111 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
                 </div>
                 
                 <div className="settings-panel-content">
-                    {/* 房间信息部分 */}
+                    {/* 房间信息部分 - 所有用户都可见 */}
                     <div className="settings-section room-info-section">
                         <h3>Room Info</h3>
                         <div className="room-id-display">
-                            <span>ID:</span>
-                            <div className="id-value">{roomdetails.id}</div>
+                        <span>ID:</span>
+                        <div className="id-value">{roomdetails.id}</div>
                         </div>
                         <motion.div 
-                            className="leave-room-btn" 
-                            whileHover={{ opacity: 0.8 }} 
-                            whileTap={{scale: 0.97}} 
-                            onClick={leaveRoom}
+                        className="leave-room-btn" 
+                        whileHover={{ opacity: 0.8 }} 
+                        whileTap={{scale: 0.97}} 
+                        onClick={leaveRoom}
                         >
-                            <h3>Leave Room</h3>
-                            <div className="leave-room-icon">
-                                <img src={leave_room} alt="leave-room"/>
-                            </div>
+                        <h3>Leave Room</h3>
+                        <div className="leave-room-icon">
+                            <img src={leave_room} alt="leave-room"/>
+                        </div>
                         </motion.div>
                     </div>
                     
-                    {/* AI角色管理部分 */}
-                    <div className="settings-section llm-management-section">
+                    {/* AI角色管理部分 - 只有创建者可见 */}
+                    {isCreator && (
+                        <div className="settings-section llm-management-section">
                         <div className="section-header">
                             <h3>AI Characters</h3>
-                        </div>
-                        
-                        {(isCreator || llmRoles.some(role => role.processorId === userDB?.uid)) && (
                             <motion.button
-                                className="add-llm-button"
-                                onClick={() => setShowLLMCreator(true)}
-                                whileHover={{ opacity: 0.8 }}
-                                whileTap={{ scale: 0.97 }}
-                                disabled={!llmAPIAvailability.anyAvailable}
-                                style={{ marginTop: '10px' }}
+                            className="add-llm-button"
+                            onClick={() => setShowLLMCreator(true)}
+                            whileHover={{ opacity: 0.8 }}
+                            whileTap={{ scale: 0.97 }}
+                            disabled={!llmAPIAvailability.anyAvailable}
                             >
-                                Add AI Character
+                            Add AI Character
                             </motion.button>
-                        )}
+                        </div>
                         
                         {!llmAPIAvailability.anyAvailable && (
                             <p className="api-key-warning">
-                                Configure API keys in Settings to use AI characters
+                            Configure API keys in Settings to use AI characters
                             </p>
                         )}
                         
                         {llmAPIAvailability.anyAvailable && llmRoles.length > 0 && (
                             <div className="api-status">
-                                <div className="api-status-badges">
-                                    {llmAPIAvailability.gemini && <span className="api-badge gemini">Gemini</span>}
-                                    {llmAPIAvailability.deepseek && <span className="api-badge deepseek">DeepSeek</span>}
-                                    {llmAPIAvailability.openai && <span className="api-badge openai">OpenAI</span>}
-                                    {llmAPIAvailability.anthropic && <span className="api-badge anthropic">Claude</span>}
-                                </div>
+                            <div className="api-status-badges">
+                                {llmAPIAvailability.gemini && <span className="api-badge gemini">Gemini</span>}
+                                {llmAPIAvailability.deepseek && <span className="api-badge deepseek">DeepSeek</span>}
+                                {llmAPIAvailability.openai && <span className="api-badge openai">OpenAI</span>}
+                                {llmAPIAvailability.anthropic && <span className="api-badge anthropic">Claude</span>}
+                            </div>
                             </div>
                         )}
                         
                         {showLLMCreator && (
                             <LLMRoleCreator
-                                onSave={handleAddLLMRole}
-                                onCancel={() => setShowLLMCreator(false)}
-                                darklight={darklight}
-                                availableModels={{
-                                    gemini: llmAPIAvailability.gemini,
-                                    deepseek: llmAPIAvailability.deepseek,
-                                    openai: llmAPIAvailability.openai,
-                                    anthropic: llmAPIAvailability.anthropic
-                                }} 
+                            onSave={handleAddLLMRole}
+                            onCancel={() => setShowLLMCreator(false)}
+                            darklight={darklight}
+                            availableModels={{
+                                gemini: llmAPIAvailability.gemini,
+                                deepseek: llmAPIAvailability.deepseek,
+                                openai: llmAPIAvailability.openai,
+                                anthropic: llmAPIAvailability.anthropic
+                            }} 
                             />
                         )}
                         
                         <div className="llm-roles-list">
                             {llmRoles.length === 0 ? (
-                                <p className="no-llm-message">No AI characters yet</p>
+                            <p className="no-llm-message">No AI characters yet</p>
                             ) : (
-                                llmRoles.map(role => (
-                                    <LLMRoleComponent
-                                        key={role.id}
-                                        role={role}
-                                        isProcessor={userDB?.uid === role.processorId}
-                                        onTakeProcessor={() => handleTakeProcessor(role.id)}
-                                        onEditRole={(updatedData: {name: string, prompt: string, model: string, avatar: string | null}) => 
-                                            handleEditRole(role.id, updatedData)
-                                        }
-                                        onToggleActive={() => handleToggleActive(role.id)}
-                                        darklight={darklight}
-                                    />
-                                ))
+                            llmRoles.map(role => (
+                                <LLMRoleComponent
+                                key={role.id}
+                                role={role}
+                                isProcessor={userDB?.uid === role.processorId}
+                                onTakeProcessor={() => handleTakeProcessor(role.id)}
+                                onEditRole={(updatedData) => handleEditRole(role.id, updatedData)}
+                                onToggleActive={() => handleToggleActive(role.id)}
+                                darklight={darklight}
+                                />
+                            ))
                             )}
                         </div>
-                    </div>
+                        </div>
+                    )}
                     
-                    {/* 成员列表部分 */}
-                    <div className="members-list">
+                    {/* 成员列表部分 - 所有用户都可见 */}
+                    <div className="settings-section members-section">
+                        <h3>Members</h3>
+                        <div className="members-list">
                         {RoomMembers.filter((member, index, self) => 
                             // 过滤掉重复的成员
                             index === self.findIndex(m => m.id === member.id)
                         ).map((obj, index) =>
                             <RoomMember 
-                                key={`roomMember_${obj.id}_${index}`} 
-                                id={obj.id} 
-                                profile={obj.profile} 
-                                username={obj.username} 
-                                inroom={obj.inRoom}
-                                darklight={darklight}
+                            key={`roomMember_${obj.id}_${index}`} 
+                            id={obj.id} 
+                            profile={obj.profile} 
+                            username={obj.username} 
+                            inroom={obj.inRoom}
+                            darklight={darklight}
                             />
                         )}
+                        </div>
                     </div>
                 </div>
             </div>
