@@ -760,6 +760,36 @@
       border: none !important;
     }
     
+    /* 确保MUI TextField组件样式与应用一致 */
+    .MuiTextField-root {
+      margin: 10px 0;
+      
+      .MuiOutlinedInput-root {
+        background-color: $darker-side-bar-col;
+        border-radius: 8px;
+        
+        .MuiOutlinedInput-notchedOutline {
+          border-color: $border-col;
+        }
+        
+        &:hover .MuiOutlinedInput-notchedOutline {
+          border-color: $gray-text-col;
+        }
+        
+        &.Mui-focused .MuiOutlinedInput-notchedOutline {
+          border-color: $light-blue-col;
+        }
+      }
+      
+      .MuiInputLabel-root {
+        color: $gray-text-col;
+        
+        &.Mui-focused {
+          color: $light-blue-col;
+        }
+      }
+    }
+
     .model-selector {
       margin: 15px 0;
       
@@ -780,6 +810,7 @@
         
         option, optgroup {
           background-color: $darker-side-bar-col;
+          font-family: 'Baloo Bhai 2', cursive;
         }
         
         optgroup {
@@ -865,6 +896,82 @@
     margin-bottom: 10px;
     transition: all 0.2s ease;
     
+    .edit-form {
+      padding: 10px;
+      
+      h3 {
+        font-size: 16px;
+        color: $text-col;
+        margin: 0 0 10px 0;
+        font-weight: 400;
+        text-align: center;
+      }
+      
+      .form-field {
+        margin-bottom: 10px;
+        
+        label {
+          display: block;
+          font-size: 14px;
+          color: $text-col;
+          margin-bottom: 5px;
+        }
+        
+        input[type="text"], textarea {
+          width: 100%;
+          padding: 8px;
+          border: none;
+          border-radius: 8px;
+          background-color: $darker-side-bar-col;
+          color: $text-col;
+          font-family: 'Baloo Bhai 2', cursive;
+          font-size: 14px;
+          resize: none;
+          outline: none;
+          box-sizing: border-box;
+        }
+        
+        input[type="text"] {
+          height: 35px;
+        }
+        
+        textarea {
+          min-height: 80px;
+        }
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        
+        button {
+          padding: 6px 12px;
+          border: none;
+          border-radius: 10px;
+          font-family: 'Baloo Bhai 2', cursive;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &.cancel-button {
+            background-color: $border-col;
+            color: $text-col;
+          }
+          
+          &.save-button {
+            background-color: #4285f4;
+            color: white;
+            
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
+        }
+      }
+    }
+
     &.inactive {
       opacity: 0.6;
     }
@@ -913,22 +1020,22 @@
             
             &[data-model^="gemini"] {
               background-color: rgba(66, 133, 244, 0.2);
-              color: #4285f4;
+              color: $text-col;
             }
             
             &[data-model^="deepseek"] {
               background-color: rgba(0, 87, 183, 0.2);
-              color: #0057B7;
+              color: $text-col;
             }
             
             &[data-model^="gpt"] {
               background-color: rgba(16, 163, 127, 0.2);
-              color: #10a37f;
+              color: $text-col;
             }
             
             &[data-model^="claude"] {
               background-color: rgba(142, 68, 173, 0.2);
-              color: #8e44ad;
+              color: $text-col;
             }
           }
           
@@ -1019,8 +1126,12 @@
     }
     
     .message-bubble.llm-bubble {
-      background-color: rgba(66, 133, 244, 0.1);
-      border-color: rgba(66, 133, 244, 0.3);
+      background-color: $darker-side-bar-col;
+      border-color: $border-col;
+
+      p {
+        color: $text-col;
+      }
     }
   }
   
