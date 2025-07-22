@@ -20,23 +20,6 @@ interface LLMRequestConfig {
 // 存储每个房间的消息历史
 const messageHistoryCache: Record<string, Record<string, Message[]>> = {};
 
-// 用于记录请求和响应的日志函数
-const logRequest = (provider: string, roomId: string, role: string, config: any) => {
-  console.log(`[${provider} Request] Room: ${roomId}, Role: ${role}`);
-  console.log('Request Config:', JSON.stringify(config, null, 2));
-};
-
-const logResponse = (provider: string, roomId: string, role: string, response: any, processedResponse: string) => {
-  console.log(`[${provider} Response] Room: ${roomId}, Role: ${role}`);
-  console.log('Raw Response:', response);
-  console.log('Processed Response:', processedResponse);
-};
-
-const logError = (provider: string, roomId: string, role: string, error: any) => {
-  console.error(`[${provider} Error] Room: ${roomId}, Role: ${role}`);
-  console.error('Error Details:', error);
-};
-
 // 初始化或获取一个角色的消息历史
 export const getMessageHistory = (roomId: string, roleId: string): Message[] => {
   if (!messageHistoryCache[roomId]) {
@@ -62,7 +45,7 @@ export const addToMessageHistory = (roomId: string, roleId: string, message: Mes
 };
 
 // 发送请求到Google Gemini API
-export const sendGeminiRequest = async (config: LLMRequestConfig, roomId: string, roleId: string): Promise<string> => {
+export const sendGeminiRequest = async (config: LLMRequestConfig): Promise<string> => {
   try {
     const apiKey = localStorage.getItem('gemini_api_key');
     if (!apiKey) {
@@ -83,20 +66,15 @@ export const sendGeminiRequest = async (config: LLMRequestConfig, roomId: string
       });
     });
     
-    const requestConfig = {
-      contents: messagesForAPI,
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 800,
-      }
-    };
-    
-    // 记录请求日志
-    logRequest('Gemini', roomId, roleId, requestConfig);
-    
     const response = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${apiKey}`,
-      requestConfig,
+      {
+        contents: messagesForAPI,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 800,
+        }
+      },
       {
         headers: {
           'Content-Type': 'application/json'
@@ -104,20 +82,15 @@ export const sendGeminiRequest = async (config: LLMRequestConfig, roomId: string
       }
     );
     
-    const responseText = response.data.candidates[0].content.parts[0].text;
-    
-    // 记录响应日志
-    logResponse('Gemini', roomId, roleId, response.data, responseText);
-    
-    return responseText;
+    return response.data.candidates[0].content.parts[0].text;
   } catch (error) {
-    logError('Gemini', roomId, roleId, error);
+    console.error('Error calling Gemini API:', error);
     return 'Sorry, I encountered an error while processing your request.';
   }
 };
 
 // 发送请求到DeepSeek API
-export const sendDeepSeekRequest = async (config: LLMRequestConfig, roomId: string, roleId: string): Promise<string> => {
+export const sendDeepSeekRequest = async (config: LLMRequestConfig): Promise<string> => {
   try {
     const apiKey = localStorage.getItem('deepseek_api_key');
     if (!apiKey) {
@@ -130,19 +103,14 @@ export const sendDeepSeekRequest = async (config: LLMRequestConfig, roomId: stri
       ...config.messageHistory
     ];
     
-    const requestConfig = {
-      model: config.model,
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 800,
-    };
-    
-    // 记录请求日志
-    logRequest('DeepSeek', roomId, roleId, requestConfig);
-    
     const response = await axios.post(
       'https://api.deepseek.com/v1/chat/completions',
-      requestConfig,
+      {
+        model: config.model,
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 800,
+      },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -151,20 +119,15 @@ export const sendDeepSeekRequest = async (config: LLMRequestConfig, roomId: stri
       }
     );
     
-    const responseText = response.data.choices[0].message.content;
-    
-    // 记录响应日志
-    logResponse('DeepSeek', roomId, roleId, response.data, responseText);
-    
-    return responseText;
+    return response.data.choices[0].message.content;
   } catch (error) {
-    logError('DeepSeek', roomId, roleId, error);
+    console.error('Error calling DeepSeek API:', error);
     return 'Sorry, I encountered an error while processing your request.';
   }
 };
 
 // 发送请求到OpenAI API
-export const sendOpenAIRequest = async (config: LLMRequestConfig, roomId: string, roleId: string): Promise<string> => {
+export const sendOpenAIRequest = async (config: LLMRequestConfig): Promise<string> => {
   try {
     const apiKey = localStorage.getItem('openai_api_key');
     if (!apiKey) {
@@ -176,19 +139,14 @@ export const sendOpenAIRequest = async (config: LLMRequestConfig, roomId: string
       ...config.messageHistory
     ];
     
-    const requestConfig = {
-      model: config.model,
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 800,
-    };
-    
-    // 记录请求日志
-    logRequest('OpenAI', roomId, roleId, requestConfig);
-    
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
-      requestConfig,
+      {
+        model: config.model,
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 800,
+      },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -197,20 +155,15 @@ export const sendOpenAIRequest = async (config: LLMRequestConfig, roomId: string
       }
     );
     
-    const responseText = response.data.choices[0].message.content;
-    
-    // 记录响应日志
-    logResponse('OpenAI', roomId, roleId, response.data, responseText);
-    
-    return responseText;
+    return response.data.choices[0].message.content;
   } catch (error) {
-    logError('OpenAI', roomId, roleId, error);
+    console.error('Error calling OpenAI API:', error);
     return 'Sorry, I encountered an error while processing your request.';
   }
 };
 
 // 发送请求到Anthropic API (Claude)
-export const sendAnthropicRequest = async (config: LLMRequestConfig, roomId: string, roleId: string): Promise<string> => {
+export const sendAnthropicRequest = async (config: LLMRequestConfig): Promise<string> => {
   try {
     const apiKey = localStorage.getItem('anthropic_api_key');
     if (!apiKey) {
@@ -224,19 +177,14 @@ export const sendAnthropicRequest = async (config: LLMRequestConfig, roomId: str
       content: msg.content
     }));
     
-    const requestConfig = {
-      model: config.model,
-      system: systemPrompt,
-      messages: messages,
-      max_tokens: 800,
-    };
-    
-    // 记录请求日志
-    logRequest('Anthropic', roomId, roleId, requestConfig);
-    
     const response = await axios.post(
       'https://api.anthropic.com/v1/messages',
-      requestConfig,
+      {
+        model: config.model,
+        system: systemPrompt,
+        messages: messages,
+        max_tokens: 800,
+      },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -246,14 +194,9 @@ export const sendAnthropicRequest = async (config: LLMRequestConfig, roomId: str
       }
     );
     
-    const responseText = response.data.content[0].text;
-    
-    // 记录响应日志
-    logResponse('Anthropic', roomId, roleId, response.data, responseText);
-    
-    return responseText;
+    return response.data.content[0].text;
   } catch (error) {
-    logError('Anthropic', roomId, roleId, error);
+    console.error('Error calling Anthropic API:', error);
     return 'Sorry, I encountered an error while processing your request.';
   }
 };
@@ -266,9 +209,6 @@ export const processLLMRequest = async (
   userName: string,
   roomName: string
 ): Promise<string> => {
-  console.log(`[LLM Request Started] Room: ${roomId}, Role: ${role.name}, Model: ${role.model}`);
-  console.log(`User Message: "${userMessage}"`);
-  
   // 获取消息历史
   const history = getMessageHistory(roomId, role.id);
   
@@ -286,23 +226,21 @@ export const processLLMRequest = async (
     userName,
     roomName
   };
-  
-  console.log(`Prompt for ${role.name}:`, role.prompt);
-  console.log(`Message History (${history.length} messages):`, history);
+
+  console.log('Processing LLM request:', config);
   
   // 根据模型选择合适的API
   let response = '';
   if (role.model.startsWith('gemini')) {
-    response = await sendGeminiRequest(config, roomId, role.id);
+    response = await sendGeminiRequest(config);
   } else if (role.model.startsWith('deepseek')) {
-    response = await sendDeepSeekRequest(config, roomId, role.id);
+    response = await sendDeepSeekRequest(config);
   } else if (role.model.startsWith('gpt')) {
-    response = await sendOpenAIRequest(config, roomId, role.id);
+    response = await sendOpenAIRequest(config);
   } else if (role.model.includes('claude')) {
-    response = await sendAnthropicRequest(config, roomId, role.id);
+    response = await sendAnthropicRequest(config);
   } else {
     response = 'Model not supported';
-    console.error(`[LLM Error] Unsupported model: ${role.model}`);
   }
   
   // 添加助手回复到历史
@@ -310,9 +248,6 @@ export const processLLMRequest = async (
     role: 'assistant',
     content: response,
   });
-  
-  console.log(`[LLM Request Completed] Room: ${roomId}, Role: ${role.name}`);
-  console.log(`Response: "${response}"`);
   
   return response;
 };
@@ -339,8 +274,6 @@ export const checkLLMAPIAvailability = (): {
   };
   
   result.anyAvailable = result.gemini || result.deepseek || result.openai || result.anthropic;
-  
-  console.log('[LLM API Availability]', result);
   
   return result;
 };

@@ -151,6 +151,7 @@ const Room : FunctionComponent<RoomProps> = ({darklight, roomRequestID, set_acce
     // 处理用户发送的消息，检查是否需要触发LLM响应
     const handleUserMessage = async (message: string) => {
         if (!userDB || !roomdetails.id) return;
+        console.log("User message:", message);
         
         // 发送用户消息
         await handleSendingRoomMessage({

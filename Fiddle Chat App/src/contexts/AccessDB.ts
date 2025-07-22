@@ -328,6 +328,8 @@ export const handleSendingRoomMessage = async(obj: {user: any, roomID: string, m
     const sentMessage = obj.message;
     
     const roomRef = doc(db, "rooms", roomID);
+
+    console.log("Sending message to room" + roomID + " : " + sentMessage);
     
     await addDoc(collection(roomRef, "roommessages"),
         {

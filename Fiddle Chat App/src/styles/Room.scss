@@ -217,7 +217,7 @@
                 .emoji-icon{right: 55px;}
 
                 .emoji-picker-holder{
-                    right: -75px;
+                    right: 0px;
                     bottom: 60px;
                     width: 315px;
                     height: 400px;
@@ -752,6 +752,15 @@
     padding: 15px;
     margin-bottom: 15px;
     
+    
+    h2 {
+      font-size: 20px;
+      color: $text-col;
+      margin: 0 0 15px 0;
+      text-align: center;
+      border: none !important;
+    }
+
     h3 {
       font-size: 16px;
       color: $text-col;
