@@ -16,6 +16,8 @@ import FriendComponent from "./FriendComponent";
 import LLMRoleCreator from "./LLMRoleCreator";
 import LLMRoleComponent from "./LLMRoleComponent";
 
+import ApiKeys from "./ApiKeys";
+
 export {Loginform, Signupform, Resetpswd, ContactCard, MessageBubblePriv, MessageBubbleRoom, 
 PersonalDetails, Themes, About, ContactCardRoom, ResetpswdConfirm, RoomMember, RequestComponent, 
-FriendComponent, LLMRoleCreator, LLMRoleComponent};
+FriendComponent, LLMRoleCreator, LLMRoleComponent, ApiKeys };

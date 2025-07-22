@@ -1,7 +1,8 @@
+// Settings.tsx
 import { useState, FunctionComponent } from 'react';
-import {user_LM, user_DM, themes_LM, themes_DM, about_LM, about_DM} from "../projectAssets";
+import {user_LM, user_DM, themes_LM, themes_DM, about_LM, about_DM, settings_LM, settings_DM} from "../projectAssets";
 import { motion } from "framer-motion";
-import { About, PersonalDetails, Themes } from './sub_components';
+import { About, PersonalDetails, Themes, ApiKeys } from './sub_components';
 import "../styles/Settings.scss";
 
 type SettingsProps = {darklight: string, changeTheme: (arg: string) => void;}
@@ -43,15 +44,26 @@ const Settings : FunctionComponent<SettingsProps> = ({darklight, changeTheme}) =
             id="themes-settings">
             { darklight === 'light'? <img src={themes_LM} alt="themes"/>
             : <img src={themes_DM} alt="themes"/>}
-            <h2>themes</h2>
+            <h2>Themes</h2>
           </motion.div>
+          
+          {/* 添加API Keys选项 */}
+          <motion.div className="sttngs_dlg-state-changer" 
+            onClick={() => changeSelectedSettings("api-keys-settings")} 
+            whileTap={{scale: 0.97}}
+            id="api-keys-settings">
+            { darklight === 'light'? <img src={settings_LM} alt="api keys"/>
+            : <img src={settings_DM} alt="api keys"/>}
+            <h2>API Keys</h2>
+          </motion.div>
+          
           <motion.div className="sttngs_dlg-state-changer" 
             onClick={() => changeSelectedSettings("about-settings")}  
             whileTap={{scale: 0.97}}
             id="about-settings">
             { darklight === 'light'? <img src={about_LM} alt="about"/>
             : <img src={about_DM} alt="about"/>}
-            <h2>about</h2>
+            <h2>About</h2>
           </motion.div>
         </div>
       </div>
@@ -63,6 +75,8 @@ const Settings : FunctionComponent<SettingsProps> = ({darklight, changeTheme}) =
                 return <PersonalDetails darklight={darklight}/>
               case "themes-settings":
                 return <Themes changeTheme={changeTheme}/>
+              case "api-keys-settings":
+                return <ApiKeys darklight={darklight}/> // 添加ApiKeys组件
               case "about-settings":
                 return <About darklight={darklight}/>
               default:

@@ -509,3 +509,249 @@
         }
     }
 }
+
+.api-keys-section {
+    width: 100%;
+    height: calc(100vh - var(--title-bar-height));
+    overflow-x: hidden;
+    
+    .top-bar-blur {
+      position: absolute;
+      top: var(--title-bar-height);
+      height: 52px;
+      width: 100%;
+      background: $top-layer-blur;
+      display: flex;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      
+      h1 {
+        margin-left: 15px;
+        font-size: 24px;
+        color: $text-col;
+      }
+    }
+    
+    .api-keys-box {
+      width: 100%;
+      height: calc(100vh - var(--title-bar-height));
+      background: $lighter-side-bar-col;
+      overflow-y: scroll;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      
+      .api-keys-content {
+        width: calc(100% - 80px);
+        min-width: 255px;
+        padding-top: 65px;
+        display: flex;
+        flex-direction: column;
+        
+        h2 {
+          font-size: 24px;
+          color: $text-col;
+          font-weight: 400;
+          margin-bottom: 15px;
+        }
+        
+        .api-section {
+          margin-bottom: 30px;
+          
+          h3 {
+            font-size: 18px;
+            color: $text-col;
+            font-weight: 400;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            
+            .api-logo {
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+            }
+            
+            .api-status-badge {
+              margin-left: 10px;
+              font-size: 12px;
+              padding: 3px 8px;
+              border-radius: 10px;
+              
+              &.configured {
+                background-color: rgba(39, 174, 96, 0.1);
+                color: $good-change-col;
+                border: 1px solid rgba(39, 174, 96, 0.3);
+              }
+              
+              &.not-configured {
+                background-color: rgba(231, 76, 60, 0.1);
+                color: $bad-change-col;
+                border: 1px solid rgba(231, 76, 60, 0.3);
+              }
+            }
+          }
+          
+          p {
+            font-size: 14px;
+            color: $gray-text-col;
+            margin-bottom: 15px;
+            line-height: 1.5;
+          }
+          
+          .api-key-input {
+            width: 100%;
+            margin-bottom: 10px;
+            
+            label {
+              display: block;
+              font-size: 14px;
+              color: $text-col;
+              margin-bottom: 5px;
+              font-weight: 400;
+            }
+            
+            .input-with-buttons {
+              display: flex;
+              align-items: center;
+              
+              input[type="password"], input[type="text"] {
+                flex: 1;
+                height: 35px;
+                border: none;
+                outline: none;
+                background: $input-textbox-selected-col;
+                box-shadow: 5px 5px 26px rgba(0, 0, 0, 0.25);
+                padding: 0px 0px 0px 0px;
+                padding-left: 8px;
+                padding-right: 8px;
+                border-radius: 13px;
+                font-size: 16px;
+                color: $text-col;
+                font-family: 'Baloo Bhai 2', cursive;
+                font-weight: 400;
+              }
+              
+              .input-buttons {
+                display: flex;
+                margin-left: 10px;
+                
+                button {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  width: 35px;
+                  height: 35px;
+                  background: $clickable-btn;
+                  border: none;
+                  border-radius: 13px;
+                  cursor: pointer;
+                  margin-right: 5px;
+                  
+                  img {
+                    width: 18px;
+                    height: 18px;
+                  }
+                  
+                  &:hover {
+                    opacity: 0.8;
+                  }
+                  
+                  &:active {
+                    transform: scale(0.95);
+                  }
+                }
+              }
+            }
+          }
+          
+          .api-actions {
+            display: flex;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            
+            button {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 40px;
+              padding: 0 20px;
+              background: $clickable-btn;
+              border: none;
+              border-radius: 15px;
+              cursor: pointer;
+              margin-right: 10px;
+              margin-bottom: 10px;
+              font-family: 'Baloo Bhai 2', cursive;
+              font-size: 16px;
+              
+              &.save-button {
+                color: $good-change-col;
+              }
+              
+              &.test-button {
+                color: $light-blue-col;
+              }
+              
+              &.clear-button {
+                color: $bad-change-col;
+              }
+              
+              img {
+                margin-left: 8px;
+                width: 16px;
+                height: 16px;
+              }
+              
+              &:hover {
+                opacity: 0.8;
+              }
+              
+              &:active {
+                transform: scale(0.95);
+              }
+              
+              &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+              }
+            }
+          }
+          
+          .api-info {
+            margin-top: 10px;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 400;
+            
+            &.success {
+              background-color: rgba(39, 174, 96, 0.1);
+              color: $good-change-col;
+              border: 1px solid rgba(39, 174, 96, 0.3);
+            }
+            
+            &.error {
+              background-color: rgba(231, 76, 60, 0.1);
+              color: $bad-change-col;
+              border: 1px solid rgba(231, 76, 60, 0.3);
+            }
+            
+            &.info {
+              background-color: rgba(52, 152, 219, 0.1);
+              color: $text-col;
+              border: 1px solid rgba(52, 152, 219, 0.3);
+            }
+          }
+        }
+        
+        .api-separator {
+          height: 1px;
+          width: 100%;
+          background-color: $border-col;
+          margin: 20px 0;
+        }
+      }
+    }
+  }
