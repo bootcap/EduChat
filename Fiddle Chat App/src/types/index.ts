@@ -21,16 +21,28 @@ export interface personalDetailsForm{
     position: string
 }
 
-export interface LLMRole {
-    id: string;           // 唯一标识符
-    name: string;         // 显示名称
-    avatar: string | null; // 头像URL
-    prompt: string;       // 提示词（设定人格）
-    model: string;        // 使用的模型(如"gpt-3.5-turbo", "claude-3-opus"等)
-    processorId: string;  // 负责处理此LLM请求的用户ID
-    isActive: boolean;    // 是否激活状态
-    lastResponse: number; // 上次响应时间戳
-}
+export interface UploadedDocument {
+    id: string;
+    name: string;
+    size: number;
+    type: string;
+    modelType: string; // 'kimi', 'qianwen' 等，表示该文档与哪个模型关联
+    fileId?: string;   // 由AI服务返回的文件ID
+    uploadTime: number;
+  }
+  
+  // 更新LLMRole接口，添加documents字段
+  export interface LLMRole {
+    id: string;
+    name: string;
+    prompt: string;
+    model: string;
+    avatar: string | null;
+    processorId: string;
+    isActive: boolean;
+    lastResponse: number;
+    documents?: UploadedDocument[]; // 添加文档列表字段
+  }
 
 // LLM API设置
 export interface LLMApiKeys {

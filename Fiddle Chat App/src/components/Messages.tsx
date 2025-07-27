@@ -26,6 +26,13 @@ const Messages : FunctionComponent<MessagesProps> = ({msgRequestID, darklight, s
   const ref = useRef<null | HTMLDivElement>(null);
   const { userDB }: authProviderType = useAuth();
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // 防止默认的换行行为
+      sendMessage();
+    }
+  };
+
   const [friendsProfile, setfriendsProfile] = useState<{
     id: string, 
     username: string, 
@@ -280,6 +287,7 @@ const Messages : FunctionComponent<MessagesProps> = ({msgRequestID, darklight, s
                 maxRows={4}
                 value={value}
                 onChange={handlechange}
+                onKeyDown={handleKeyDown}
                 placeholder="Say something here..."
                 color="primary"
                 variant="standard"

@@ -40,6 +40,10 @@ const LLMRoleComponent: FunctionComponent<LLMRoleComponentProps> = ({
       return model.replace('gpt-', 'GPT ');
     } else if (model.includes('claude')) {
       return model.replace('claude-', 'Claude ');
+    } else if (model.startsWith('qwen')) {
+      return model.replace('qwen-', '通义千文 ');
+    } else if (model.startsWith('kimi')) {
+      return 'Kimi';
     }
     return model;
   };

@@ -386,3 +386,87 @@ export const goOnline = async() => {
 
     await updateDoc(currentUserRef, { "OnlineStatus": true,});
 }
+
+// 保存用户的API keys到Firebase
+export const saveAPIKeys = async (
+    userID: string, 
+    keys: { 
+      gemini?: string; 
+      deepseek?: string; 
+      openai?: string; 
+      anthropic?: string; 
+      qianwen?: string;
+      kimi?: string;
+    }
+  ) => {
+    try {
+      const userRef = doc(db, "users", userID);
+      
+      // 只更新提供的keys，不影响其他keys
+      const updateData: { [key: string]: any } = {};
+      
+      if (keys.gemini !== undefined) {
+        updateData['gemini_api_key'] = keys.gemini;
+      }
+      if (keys.deepseek !== undefined) {
+        updateData['deepseek_api_key'] = keys.deepseek;
+      }
+      if (keys.openai !== undefined) {
+        updateData['openai_api_key'] = keys.openai;
+      }
+      if (keys.anthropic !== undefined) {
+        updateData['anthropic_api_key'] = keys.anthropic;
+      }
+      if (keys.qianwen !== undefined) {
+        updateData['qianwen_api_key'] = keys.qianwen;
+      }
+      if (keys.kimi !== undefined) {
+        updateData['kimi_api_key'] = keys.kimi;
+      }
+      
+      await updateDoc(userRef, updateData);
+      return true;
+    } catch (error) {
+      console.error("Error saving API keys:", error);
+      return false;
+    }
+  };
+  
+  // 从Firebase获取用户的API keys
+  export const getAPIKeys = async (userID: string) => {
+    try {
+      const userRef = doc(db, "users", userID);
+      const userSnap = await getDoc(userRef);
+      
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        return {
+          gemini: userData?.gemini_api_key || '',
+          deepseek: userData?.deepseek_api_key || '',
+          openai: userData?.openai_api_key || '',
+          anthropic: userData?.anthropic_api_key || '',
+          qianwen: userData?.qianwen_api_key || '',
+          kimi: userData?.kimi_api_key || ''
+        };
+      }
+      
+      return {
+        gemini: '',
+        deepseek: '',
+        openai: '',
+        anthropic: '',
+        qianwen: '',
+        kimi: ''
+      };
+    } catch (error) {
+      console.error("Error getting API keys:", error);
+      return {
+        gemini: '',
+        deepseek: '',
+        openai: '',
+        anthropic: '',
+        qianwen: '',
+        kimi: ''
+      };
+    }
+  };

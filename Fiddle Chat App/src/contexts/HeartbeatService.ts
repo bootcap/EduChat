@@ -16,7 +16,7 @@ export const updateUserHeartbeat = async (userId: string) => {
         lastHeartbeat: Date.now(),
         OnlineStatus: true
       });
-      console.log(`Updated heartbeat for user ${userId}`);
+      // console.log(`Updated heartbeat for user ${userId}`);
     } else {
       console.warn(`User document not found for ID: ${userId}`);
       // 可以选择性地创建用户文档
@@ -43,7 +43,7 @@ export const updateRoomMemberStatus = async (userId: string, roomId: string) => 
         lastActive: Date.now(),
         inRoom: true
       });
-      console.log(`Updated member status for user ${userId} in room ${roomId}`);
+      // console.log(`Updated member status for user ${userId} in room ${roomId}`);
     } else {
       console.warn(`Member document not found for user ${userId} in room ${roomId}`);
     }
@@ -67,7 +67,7 @@ export const checkLLMProcessors = async (roomId: string, currentUserId: string) 
     const updatedRoles = [...llmRoles];
     let hasChanges = false;
     
-    console.log(`Checking ${llmRoles.length} LLM processors in room ${roomId}`);
+    // console.log(`Checking ${llmRoles.length} LLM processors in room ${roomId}`);
     
     // 检查每个LLM角色的处理者
     for (let i = 0; i < llmRoles.length; i++) {
@@ -110,8 +110,6 @@ export const checkLLMProcessors = async (roomId: string, currentUserId: string) 
     if (hasChanges) {
       console.log(`Updating LLM roles in room ${roomId}`);
       await updateDoc(roomRef, { llmRoles: updatedRoles });
-    } else {
-      console.log(`No changes needed for LLM roles in room ${roomId}`);
     }
   } catch (error) {
     console.error(`Error checking LLM processors in room ${roomId}:`, error);

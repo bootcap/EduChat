@@ -19,6 +19,8 @@ type LLMRoleCreatorProps = {
     deepseek: boolean;
     openai: boolean;
     anthropic: boolean;
+    qianwen: boolean;
+    kimi: boolean;
   };
 }
 
@@ -31,7 +33,9 @@ const LLMRoleCreator: FunctionComponent<LLMRoleCreatorProps> = ({ onSave, onCanc
     gemini: false,
     deepseek: false,
     openai: false,
-    anthropic: false
+    anthropic: false,
+    qianwen: false,
+    kimi: false
   });
   
   useEffect(() => {
@@ -47,6 +51,10 @@ const LLMRoleCreator: FunctionComponent<LLMRoleCreatorProps> = ({ onSave, onCanc
       setModel('gpt-3.5-turbo');
     } else if (availability.anthropic) {
       setModel('claude-3-haiku');
+    } else if (availability.qianwen) {
+      setModel('qwen-turbo');
+    } else if (availability.kimi) {
+      setModel('kimi-moonshot-v1-32k');
     }
   }, []);
   
@@ -118,6 +126,32 @@ const LLMRoleCreator: FunctionComponent<LLMRoleCreatorProps> = ({ onSave, onCanc
             </option>
             <option value="claude-3-sonnet" disabled={!apiAvailability.anthropic}>
               Claude 3 Sonnet
+            </option>
+          </optgroup>
+          
+          {/* 通义千文 Models */}
+          <optgroup label="通义千文 Models">
+            <option value="qwen-turbo" disabled={!apiAvailability.qianwen}>
+              通义千文-Turbo
+            </option>
+            <option value="qwen-plus" disabled={!apiAvailability.qianwen}>
+              通义千文-Plus
+            </option>
+            <option value="qwen-max" disabled={!apiAvailability.qianwen}>
+              通义千文-Max
+            </option>
+          </optgroup>
+          
+          {/* Kimi Models */}
+          <optgroup label="Kimi (Moonshot) Models">
+            <option value="moonshot-v1-8k" disabled={!apiAvailability.kimi}>
+              Kimi v1 8K
+            </option>
+            <option value="moonshot-v1-32k" disabled={!apiAvailability.kimi}>
+              Kimi v1 32K
+            </option>
+            <option value="moonshot-v1-128k" disabled={!apiAvailability.kimi}>
+              Kimi v1 128K
             </option>
           </optgroup>
         </select>

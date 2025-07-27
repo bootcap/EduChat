@@ -15,9 +15,11 @@ import FriendComponent from "./FriendComponent";
 
 import LLMRoleCreator from "./LLMRoleCreator";
 import LLMRoleComponent from "./LLMRoleComponent";
+import RoomLLMPanel from "./RoomLLMPanel";
+import ConfirmDialog from './ConfirmDialog';
 
 import ApiKeys from "./ApiKeys";
 
 export {Loginform, Signupform, Resetpswd, ContactCard, MessageBubblePriv, MessageBubbleRoom, 
 PersonalDetails, Themes, About, ContactCardRoom, ResetpswdConfirm, RoomMember, RequestComponent, 
-FriendComponent, LLMRoleCreator, LLMRoleComponent, ApiKeys };
+FriendComponent, LLMRoleCreator, LLMRoleComponent, ApiKeys, RoomLLMPanel, ConfirmDialog };
